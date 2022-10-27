@@ -5,10 +5,11 @@ int main()
     struct cpu _cpu;
     reset(&_cpu);
 
+    //multiply 5x5 without mul opcode
     const char instructions[][40] = 
     {
-        "mov r0, 69",
-        "mov r1, 69",
+        "mov r0, 5",
+        "mov r1, 5",
         "mov r2, 0",
         "mov r3, r0",
 
