@@ -1,11 +1,33 @@
 #include "includes.h"
 
+struct label* interpret_code_labels(struct label labels[MAX_LABELS], const char instructions[MAX_INSTRUCTIONS][MAX_INSTRUCTION_LEN])
+{
+    i32 lblidx = 0;
+    for(i32 i = 0; i < MAX_INSTRUCTIONS; i++)
+    {
+        char instruction[MAX_INSTRUCTION_LEN];
+        strcpy(instruction, instructions[i]);
+        if(instruction[0] == '#')
+        {
+            char lblname[MAX_LABEL_NAME_LEN];
+            strncpy(lblname, instruction+1, MAX_LABEL_NAME_LEN);
+
+            struct label lbl = {i, lblname};
+            strcpy(&lbl.name, &lblname);
+
+            labels[lblidx] = lbl;
+
+            lblidx++;
+        }
+    }
+}
+
 char** parse_instruction(const char _str[])
 {
     char* str = calloc(strlen(_str)+1, sizeof(char));
     strcpy(str, _str);
 
-    char** arr = malloc(5 * sizeof(char*)); //5 is max anyway so fuck you.
+    char** arr = malloc(MAX_PARAMETERS * sizeof(char*));
     char seps[]   = " ,";
 
     char *token;
@@ -24,6 +46,23 @@ char** parse_instruction(const char _str[])
     return arr;
 }
 
+i32 line_by_label_raw(struct cpu* _cpu, const char* label)
+{
+    char lblname[MAX_LABEL_NAME_LEN];
+    memset(lblname, 0, MAX_LABEL_NAME_LEN);
+
+    strncpy(lblname, label+1, strlen(label));
+    lblname[strlen(lblname)] = ':';
+
+    for(int i = 0; i < MAX_LABELS; i++)
+    {
+        if(strcmp(lblname, _cpu->lbls[i].name) == 0)
+        {
+            return _cpu->lbls[i].line;
+        }
+    }
+}
+
 enum op op_by_str(char* str)
 {
     if(strcmp(str, "mov") == 0)
@@ -36,6 +75,8 @@ enum op op_by_str(char* str)
         return add;
     if(strcmp(str, "sub") == 0)
         return sub;
+    if(strcmp(str, "mul") == 0)
+        return mul;
     if(strcmp(str, "jmp") == 0)
         return jmp;
     if(strcmp(str, "cmp") == 0)
@@ -44,6 +85,8 @@ enum op op_by_str(char* str)
         return je;
     if(strcmp(str, "jne") == 0)
         return jne;
+    if(strcmp(str, "int") == 0)
+        return _int;
     if(strcmp(str, "exit") == 0)
         return exit;
     
