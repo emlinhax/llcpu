@@ -1,22 +1,23 @@
 #include "includes.h"
 
-struct cpu
-{
-    i32 ip;
-    struct flags f;
-    i32 r[8];
-};
-
 void reset(struct cpu* _cpu)
 {
     memset(&_cpu->f, 0, (size_t)(sizeof(struct flags)));
     memset(&_cpu->r, 0, (size_t)(sizeof(i32) * 8));
+    memset(&_cpu->pr, 0, (size_t)(sizeof(i32) * 8));
+    memset(&_cpu->cr, 0, (size_t)(sizeof(i32) * 8));
     _cpu->ip = 0;
 }
 
 void exec_raw(struct cpu* _cpu, const char _args[])
 {
     char** args = parse_instruction(_args);
+    if(args[0][0] == '#' || sizeof(args[0]) < 1)
+    {
+        _cpu->ip++;
+        return;
+    }
+
     i32 _op = op_by_str(args[0]);
     switch(_op)
     {
@@ -78,10 +79,23 @@ void exec_raw(struct cpu* _cpu, const char _args[])
             _cpu->ip++;
             break;
         }
+        case mul:
+        {
+            i32 val = 0;
+            if(is_arg_register(args[2]))
+                val = _cpu->r[register_by_str(args[2])];
+            else
+                val = atoi(args[2]);
+
+            i32 dst = register_by_str(args[1]);
+            _cpu->r[dst] *= val;
+            
+            _cpu->ip++;
+            break;
+        }
         case jmp:
         {
-            i32 val = atoi(args[1]);
-            _cpu->ip = val;
+            _cpu->ip = line_by_label_raw(_cpu, args[1]);
             break;
         }
         case cmp:
@@ -106,10 +120,9 @@ void exec_raw(struct cpu* _cpu, const char _args[])
         }
         case je:
         {
-            i32 val = atoi(args[1]);
             if(_cpu->f.cmp)
             {
-                _cpu->ip = val;
+                _cpu->ip = line_by_label_raw(_cpu, args[1]);
                 break;
             }
 
@@ -118,14 +131,19 @@ void exec_raw(struct cpu* _cpu, const char _args[])
         }
         case jne:
         {
-            i32 val = atoi(args[1]);
             if(!_cpu->f.cmp)
             {
-                _cpu->ip = val;
+                _cpu->ip = _cpu->ip = line_by_label_raw(_cpu, args[1]);
                 break;
             }
 
             _cpu->ip++;
+            break;
+        }
+        case _int:
+        {
+            _cpu->ip++;
+            raise(5); //5 = SIGTRAP
             break;
         }
         case exit:
