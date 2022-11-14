@@ -41,7 +41,7 @@ struct label
 };
 
 enum ctlreg_mask {
-    RRAP,       //Protected Register Access Protection
+    RRAP,       //Reserved Register Access Protection
     HI,         //Handle Interrupts
     unused3,
     unused4,
