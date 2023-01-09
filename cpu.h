@@ -75,6 +75,20 @@ void exec_raw(struct cpu* _cpu, const char _args[])
             _cpu->ip++;
             break;
         }
+        case mul:
+        {
+            i32 val = 0;
+            if(is_arg_register(args[2]))
+                val = _cpu->r[register_by_str(args[2])];
+            else
+                val = atoi(args[2]);
+
+            i32 dst = register_by_str(args[1]);
+            _cpu->r[dst] *= val;
+            
+            _cpu->ip++;
+            break;
+        }
         case jmp:
         {
             _cpu->ip = line_by_label_raw(_cpu, args[1]);
