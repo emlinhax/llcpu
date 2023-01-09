@@ -18,9 +18,10 @@ int main()
         "cmp r1, 0",
         "jne #mul",
         "jmp #end",
-        
+
         "#end:",
-        "exit",
+        "int",
+        "exit"
     };
     interpret_code_labels(&_cpu.lbls, instructions);
 
