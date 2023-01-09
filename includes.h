@@ -25,6 +25,8 @@ enum op
     cmp,
     je,
     jne,
+    setctl,
+    getctl,
     _int,
     exit
 };
@@ -41,7 +43,7 @@ struct label
 };
 
 enum ctlreg_mask {
-    RRAP,       //Protected Register Access Protection
+    RRAP,       //Reserve Register Access Protection
     HI,         //Handle Interrupts
     unused3,
     unused4,
@@ -56,8 +58,8 @@ struct cpu
     i32 ip;
     struct flags f;
     i32 cr[8];  //control register (cpu's ruleset)
-    i32 r[8];   //user registers
-    i32 pr[8];  //protected registers (reserved)
+    i32 r[16];  //0-8 user registers
+                //9-16 protected registers (reserved)
 
     struct label lbls[MAX_LABELS];
 };

@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "string": "c",
+        "sstream": "c",
+        "includes.h": "c"
+    }
+}

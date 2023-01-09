@@ -85,6 +85,10 @@ enum op op_by_str(char* str)
         return je;
     if(strcmp(str, "jne") == 0)
         return jne;
+    if(strcmp(str, "setctl") == 0)
+        return setctl;
+    if(strcmp(str, "getctl") == 0)
+        return getctl;
     if(strcmp(str, "int") == 0)
         return _int;
     if(strcmp(str, "exit") == 0)
@@ -103,4 +107,26 @@ i32 register_by_str(const char* arg)
 bl is_arg_register(char* arg)
 {
     return arg[0] == 'r';
+}
+
+i32 val_by_arg(struct cpu* _cpu, char* arg)
+{
+    i32 val = 0;
+    if(is_arg_register(arg))
+        return _cpu->r[register_by_str(arg)];
+    else
+        return atoi(arg);
+}
+
+i32 write_r(struct cpu* _cpu, i32 ri, i32 val)
+{
+    if(ri > 8)
+    {
+        if(!_cpu->cr[RRAP])
+            _cpu->r[ri] = val;
+    }
+    else
+    {
+        _cpu->r[ri] = val;
+    }
 }
